@@ -1,0 +1,22 @@
+# сборка и установщики (публикуются в Releases, не в репозиторий)
+build/bin/
+build/installer/
+
+# зависимости фронтенда
+node_modules/
+frontend/node_modules/
+
+# собранный фронтенд создаётся командой wails build; .gitkeep нужен, чтобы go:embed
+# находил папку после клонирования
+frontend/dist/*
+!frontend/dist/.gitkeep
+
+# секреты: ключи подписи обновлений и сертификаты
+*.key
+*.pfx
+*.p12
+*.pem
+
+# служебное
+.claude/
+*.log

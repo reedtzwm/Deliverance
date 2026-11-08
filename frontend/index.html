@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Deliverance</title>
+    <script>
+      // тема применяется до первой отрисовки, чтобы ночью не было белой вспышки
+      try {
+        var t = localStorage.getItem('theme') || 'auto';
+        var d = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = d ? 'dark' : 'light';
+      } catch (e) {}
+    </script>
+</head>
+<body>
+<div id="app">
+  <header class="titlebar">
+    <div class="tt"><img src="./src/assets/logo.svg" width="18" height="18" alt=""><span>Deliverance</span></div>
+    <div class="wc">
+      <button id="wMin" title="Свернуть"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+      <button id="wMax" title="Развернуть"><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8"/></svg></button>
+      <button id="wClose" class="close" title="Скрыть в трей"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
+    </div>
+  </header>
+  <div class="body">
+  <nav class="side">
+    <div class="brand">
+      <img src="./src/assets/logo.svg" width="40" height="40" alt="Deliverance">
+    </div>
+    <button class="nav active" data-page="home" title="Главная">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg><span>Главная</span>
+    </button>
+    <button class="nav" data-page="domains" title="Игры и домены">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span>Домены</span>
+    </button>
+    <button class="nav" data-page="settings" title="Настройки">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Настройки</span>
+    </button>
+    <button class="nav" data-page="log" title="Журнал">
+      <svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h4"/></svg><span>Журнал</span>
+    </button>
+    <div class="grow"></div>
+    <button class="nav" id="btnQuit" title="Выход">
+      <svg viewBox="0 0 24 24"><path d="M9 4H4v16h5M16 8l4 4-4 4M20 12H9"/></svg><span>Выход</span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- ГЛАВНАЯ -->
+    <section class="page" id="page-home">
+      <div class="top">
+        <h1>Deliverance</h1>
+        <div class="pill" id="status"><span class="dot"></span><span id="statusText">Остановлено</span></div>
+      </div>
+
+      <div class="hero">
+        <div>
+          <div class="label">Конфигурация</div>
+          <div class="big" id="curBat">не выбрана</div>
+          <div class="muted">Версия zapret: <b id="ver">—</b></div>
+        </div>
+        <button id="btnToggle" class="btn solid">Запустить</button>
+      </div>
+
+      <div class="progress" id="progress" hidden>
+        <div class="bar"><div id="barFill"></div></div>
+        <div class="ptext"><span id="ptext"></span><button id="btnCancel" class="link">Отмена</button></div>
+      </div>
+
+      <div class="grid2">
+        <button id="btnAuto" class="btn">Подобрать автоматически</button>
+        <button id="btnUpdate" class="btn">Проверить обновления</button>
+      </div>
+
+      <div class="card">
+        <label class="label" for="batSelect">Выбрать конфигурацию вручную</label>
+        <select id="batSelect"></select>
+      </div>
+    </section>
+
+    <!-- ДОМЕНЫ И ИГРЫ -->
+    <section class="page" id="page-domains" hidden>
+      <div class="top"><h1>Игры и домены</h1></div>
+      <div class="card">
+        <label class="label" for="presetSelect">Добавить игру или сервис из списка</label>
+        <div class="inline">
+          <select id="presetSelect"></select>
+          <button id="btnPreset" class="btn small">Добавить</button>
+        </div>
+        <span class="muted tip">Наборы примерные: если игра не заработала, допишите нужные домены ниже вручную.</span>
+      </div>
+      <div class="card">
+        <label class="label" for="domainsText">Свои домены (по одному в строке)</label>
+        <textarea id="domainsText" spellcheck="false" placeholder="example.com&#10;game-server.net"></textarea>
+        <span class="muted tip">Можно вставлять адреса целиком — программа оставит только домен.</span>
+      </div>
+      <div class="card">
+        <label class="label" for="gameFilter">Игровой фильтр (порты 1024–65535)</label>
+        <select id="gameFilter">
+          <option value="off">Выключен</option>
+          <option value="all">TCP и UDP</option>
+          <option value="tcp">Только TCP</option>
+          <option value="udp">Только UDP</option>
+        </select>
+        <span class="muted tip">Нужен, если игре недостаточно доменов (онлайн-режимы по UDP). Включайте, только если без него не работает: может влиять на скорость.</span>
+      </div>
+      <div class="inline"><button id="btnDomains" class="btn solid">Сохранить и применить</button><span id="domMsg" class="muted"></span></div>
+    </section>
+
+    <!-- НАСТРОЙКИ -->
+    <section class="page" id="page-settings" hidden>
+      <div class="top"><h1>Настройки</h1></div>
+      <div class="card">
+        <div class="row">
+          <div><b>Тема оформления</b><span class="muted">«Как в системе» подстраивается под тему Windows</span></div>
+          <select id="themeSelect" class="themesel">
+            <option value="auto">Как в системе</option>
+            <option value="light">Светлая</option>
+            <option value="dark">Тёмная</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card list">
+        <label class="row"><div><b>Автообновление zapret</b><span class="muted">Проверять GitHub при запуске программы</span></div>
+          <input type="checkbox" id="cbUpdate" class="sw"></label>
+        <label class="row"><div><b>Запускать zapret при старте</b><span class="muted">Сразу включать обход при открытии программы</span></div>
+          <input type="checkbox" id="cbStart" class="sw"></label>
+        <label class="row"><div><b>Запускать вместе с Windows</b><span class="muted">В фоне, свёрнутой в трей</span></div>
+          <input type="checkbox" id="cbAutorun" class="sw"></label>
+        <label class="row"><div><b>Периодическая проверка</b><span class="muted">Раз в 10 минут; при сбое — автоматический переподбор</span></div>
+          <input type="checkbox" id="cbWatchdog" class="sw"></label>
+      </div>
+
+      <div class="card">
+        <label class="row"><div><b>Прокси для Telegram</b><span class="muted" id="tgText">Локальный прокси 127.0.0.1:1443, трафик идёт через WebSocket</span></div>
+          <input type="checkbox" id="cbTg" class="sw"></label>
+        <div class="inline tgbtns">
+          <button id="btnTgOpen" class="btn small">Подключить в Telegram</button>
+          <button id="btnTgCopy" class="btn small">Копировать ссылку</button>
+        </div>
+        <span class="muted tip">Основано на проекте Flowseal/tg-ws-proxy (MIT). Включите, затем нажмите «Подключить в Telegram» один раз.</span>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div><b>Диагностика сети</b><span class="muted">Проверка доступности Discord, YouTube, Telegram и ваших доменов</span></div>
+          <button id="btnDiagOpen" class="btn small">Открыть</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div><b>Обновление программы</b><span class="muted" id="selfText">Версия —</span></div>
+          <button id="btnSelf" class="btn small">Проверить</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЖУРНАЛ -->
+    <section class="page" id="page-log" hidden>
+      <div class="top"><h1>Журнал</h1></div>
+      <div class="log" id="log"></div>
+    </section>
+  </main>
+
+  <!-- ОКНО ДИАГНОСТИКИ (внутри приложения) -->
+  <div class="modal" id="diagModal" hidden>
+    <div class="modal-box" role="dialog" aria-label="Диагностика">
+      <div class="top">
+        <h1>Диагностика</h1>
+        <div class="mbtns">
+          <button id="btnDiag" class="btn small">Проверить сейчас</button>
+          <button id="btnDiagClose" class="btn small">Закрыть</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="card" id="diagStatus"><span class="muted">Нажмите «Проверить сейчас»: программа по очереди обратится к сервисам и покажет, что доступно, а что нет.</span></div>
+        <div class="progress" id="diagProgress" hidden><div class="bar"><div id="diagFill"></div></div></div>
+        <div id="diagGroups"></div>
+        <div class="card" id="diagHints" hidden></div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<script src="./src/main.js" type="module"></script>
+</body>
+</html>
