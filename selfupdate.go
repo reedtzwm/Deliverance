@@ -22,9 +22,9 @@ import (
 // (тег релиза — например 1.1.0 или v1.1.0).
 // Версию при сборке можно задать так: go build -ldflags "-X main.appVersion=1.1.0"
 
-var appVersion = "1.7.1"
+var appVersion = "1.7.2"
 
-const selfRepo = "" // TODO: "ВАШ_ЛОГИН/ВАШ_РЕПОЗИТОРИЙ"
+const selfRepo = "reedtzwm/Deliverance"
 
 // Префикс имени установщика в релизе: <префикс><версия>.exe и рядом <то же>.exe.sig
 const installerPrefix = "Deliverance-Setup-"
