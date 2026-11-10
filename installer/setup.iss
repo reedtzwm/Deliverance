@@ -34,8 +34,10 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Создать ярлык на рабочем столе"; GroupDescription: "Дополнительно:"
-Name: "autorun"; Description: "Запускать вместе с Windows"; GroupDescription: "Дополнительно:"
+; checkedonce: при первой установке галочки стоят, а при обновлении (в том числе тихом, из программы)
+; сохраняется прежний выбор пользователя — отключённый автозапуск не включится сам
+Name: "desktopicon"; Description: "Создать ярлык на рабочем столе"; GroupDescription: "Дополнительно:"; Flags: checkedonce
+Name: "autorun"; Description: "Запускать вместе с Windows"; GroupDescription: "Дополнительно:"; Flags: checkedonce
 
 [InstallDelete]
 ; остатки прежних версий (Zapret GUI, Deliverance)
@@ -57,6 +59,8 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 [Run]
 Filename: "schtasks"; Parameters: "/Create /TN ""DZapret"" /TR ""\""{app}\{#AppExe}\"" --minimized"" /SC ONLOGON /RL HIGHEST /F"; Flags: runhidden; Tasks: autorun
 Filename: "{app}\{#AppExe}"; Description: "Запустить {#AppName}"; Flags: nowait postinstall skipifsilent
+; тихое обновление из программы: после него приложение запускается само (в обычной установке — чекбокс выше)
+Filename: "{app}\{#AppExe}"; Flags: nowait skipifnotsilent
 
 [UninstallRun]
 Filename: "taskkill"; Parameters: "/F /IM winws.exe"; Flags: runhidden; RunOnceId: "KillWinws"
