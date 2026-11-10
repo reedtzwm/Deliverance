@@ -24,7 +24,7 @@ func main() {
 	}
 
 	err := wails.Run(&options.App{
-		Title:             "Deliverance",
+		Title:             "DZapret",
 		Width:             900,
 		Height:            640,
 		MinWidth:          760,
@@ -39,7 +39,7 @@ func main() {
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: "b7e2c4a1-5d3f-4e8a-9c61-deliverance",
+			UniqueId: "b7e2c4a1-5d3f-4e8a-9c61-dzapret",
 			OnSecondInstanceLaunch: func(options.SecondInstanceData) {
 				app.showWindow()
 			},

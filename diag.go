@@ -117,7 +117,7 @@ func probeHTTPS(ctx context.Context, url string) (int64, error) {
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 	}
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 Deliverance")
+	req.Header.Set("User-Agent", "Mozilla/5.0 DZapret")
 	start := time.Now()
 	resp, err := client.Do(req)
 	if err != nil {

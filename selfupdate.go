@@ -18,16 +18,16 @@ import (
 // ---- ЗАГОТОВКА самообновления самого приложения ----
 //
 // Чтобы включить: впишите свой репозиторий в selfRepo ("логин/репозиторий")
-// и публикуйте в Releases установщик с именем Deliverance-Setup-<версия>.exe
+// и публикуйте в Releases установщик с именем DZapret-Setup-<версия>.exe
 // (тег релиза — например 1.1.0 или v1.1.0).
 // Версию при сборке можно задать так: go build -ldflags "-X main.appVersion=1.1.0"
 
-var appVersion = "1.7.2"
+var appVersion = "1.8.0"
 
 const selfRepo = "reedtzwm/Deliverance"
 
 // Префикс имени установщика в релизе: <префикс><версия>.exe и рядом <то же>.exe.sig
-const installerPrefix = "Deliverance-Setup-"
+const installerPrefix = "DZapret-Setup-"
 
 // Публичный ключ для проверки обновлений. Парный приватный ключ лежит только у автора
 // (%USERPROFILE%\.zapretgui-signing\update.key) и в репозиторий не попадает.

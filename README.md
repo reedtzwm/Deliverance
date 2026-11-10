@@ -1,4 +1,4 @@
-# Deliverance
+# DZapret
 
 Графическая оболочка для [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) под Windows 10/11:
 сама скачивает и обновляет zapret, подбирает рабочую конфигурацию, живёт в трее.
@@ -15,11 +15,14 @@
 
 ## Установка
 
-Скачайте `Deliverance-Setup-<версия>.exe` из [Releases](../../releases) и запустите.
+Скачайте `DZapret-Setup-<версия>.exe` из [Releases](../../releases) и запустите.
 Программе нужны права администратора: драйвер WinDivert перехватывает трафик.
 
 > Антивирусы иногда реагируют на `winws.exe` и WinDivert — это легитимные компоненты zapret.
-> Если файлы пропали, добавьте `C:\ProgramData\Deliverance` в исключения.
+> Если файлы пропали, добавьте `C:\ProgramData\DZapret` в исключения.
+
+Если у вас стояла версия под прежним названием (Zapret GUI или Deliverance), установщик заменит её и
+перенесёт настройки.
 
 ## Сборка из исходников
 
@@ -39,8 +42,11 @@ go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
 1. Поднять версию в `selfupdate.go` (`appVersion`).
 2. `.\build.ps1`
-3. Создать релиз с тегом `v<версия>` и приложить оба файла:
-   `Deliverance-Setup-<версия>.exe` и `Deliverance-Setup-<версия>.exe.sig`.
+3. Создать релиз с тегом `v<версия>` и приложить файлы:
+   `DZapret-Setup-<версия>.exe` и `DZapret-Setup-<версия>.exe.sig`.
+4. Пока у пользователей остаются установки под названием Deliverance, приложите также
+   `Deliverance-Setup-<версия>.exe` и `.exe.sig` (тот же установщик под старым именем, `build.ps1` создаёт их сам):
+   только так старые копии смогут обновиться.
 
 ## Благодарности и лицензии
 

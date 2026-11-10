@@ -1,17 +1,17 @@
 ﻿; Inno Setup — один Setup.exe: ставит программу, ярлыки, запись об удалении.
-; Файлы zapret приложение скачивает само в %ProgramData%\Deliverance.
-#define AppName "Deliverance"
+; Файлы zapret приложение скачивает само в %ProgramData%\DZapret.
+#define AppName "DZapret"
 #ifndef AppVer
-  #define AppVer "1.7.1"
+  #define AppVer "1.8.0"
 #endif
-#define AppExe  "deliverance.exe"
+#define AppExe  "dzapret.exe"
 
 [Setup]
-; AppId прежний — новая версия встаёт поверх установленной (до переименования программа называлась Zapret GUI)
+; AppId прежний — новая версия встаёт поверх установленной (программа раньше называлась Zapret GUI, затем Deliverance)
 AppId={{B7E2C4A1-5D3F-4E8A-9C61-0A1B2C3D4E5F}
 AppName={#AppName}
 AppVersion={#AppVer}
-AppPublisher=Deliverance
+AppPublisher=DZapret
 DefaultDirName={autopf}\{#AppName}
 UsePreviousAppDir=no
 DefaultGroupName={#AppName}
@@ -20,7 +20,7 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\build\installer
-OutputBaseFilename=Deliverance-Setup-{#AppVer}
+OutputBaseFilename=DZapret-Setup-{#AppVer}
 SetupIconFile=..\build\windows\icon.ico
 UninstallDisplayIcon={app}\{#AppExe}
 Compression=lzma2
@@ -38,10 +38,13 @@ Name: "desktopicon"; Description: "Создать ярлык на рабочем
 Name: "autorun"; Description: "Запускать вместе с Windows"; GroupDescription: "Дополнительно:"
 
 [InstallDelete]
-; остатки прежней версии (Zapret GUI)
+; остатки прежних версий (Zapret GUI, Deliverance)
 Type: filesandordirs; Name: "{autopf}\Zapret GUI"
+Type: filesandordirs; Name: "{autopf}\Deliverance"
 Type: filesandordirs; Name: "{autoprograms}\Zapret GUI"
+Type: filesandordirs; Name: "{autoprograms}\Deliverance"
 Type: files; Name: "{autodesktop}\Zapret GUI.lnk"
+Type: files; Name: "{autodesktop}\Deliverance.lnk"
 
 [Files]
 Source: "..\build\bin\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,27 +55,29 @@ Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExe}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
 
 [Run]
-Filename: "schtasks"; Parameters: "/Create /TN ""Deliverance"" /TR ""\""{app}\{#AppExe}\"" --minimized"" /SC ONLOGON /RL HIGHEST /F"; Flags: runhidden; Tasks: autorun
+Filename: "schtasks"; Parameters: "/Create /TN ""DZapret"" /TR ""\""{app}\{#AppExe}\"" --minimized"" /SC ONLOGON /RL HIGHEST /F"; Flags: runhidden; Tasks: autorun
 Filename: "{app}\{#AppExe}"; Description: "Запустить {#AppName}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "taskkill"; Parameters: "/F /IM winws.exe"; Flags: runhidden; RunOnceId: "KillWinws"
 Filename: "sc"; Parameters: "stop WinDivert"; Flags: runhidden; RunOnceId: "StopDivert"
-Filename: "schtasks"; Parameters: "/Delete /TN ""Deliverance"" /F"; Flags: runhidden; RunOnceId: "DelTask"
-Filename: "schtasks"; Parameters: "/Delete /TN ""ZapretGUI"" /F"; Flags: runhidden; RunOnceId: "DelOldTask"
+Filename: "schtasks"; Parameters: "/Delete /TN ""DZapret"" /F"; Flags: runhidden; RunOnceId: "DelTask"
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{commonappdata}\Deliverance"
-Type: filesandordirs; Name: "{commonappdata}\ZapretGUI"
+Type: filesandordirs; Name: "{commonappdata}\DZapret"
 
 [Code]
-// Перед установкой закрываем прежнюю версию (Zapret GUI) и обход, чтобы файлы можно было заменить.
+// Перед установкой закрываем прежние версии и обход, чтобы файлы можно было заменить,
+// и убираем задачи автозапуска под старыми названиями (новая создаётся заново, если выбрана).
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   R: Integer;
 begin
+  Exec('taskkill', '/F /IM dzapret.exe', '', SW_HIDE, ewWaitUntilTerminated, R);
+  Exec('taskkill', '/F /IM deliverance.exe', '', SW_HIDE, ewWaitUntilTerminated, R);
   Exec('taskkill', '/F /IM zapretgui.exe', '', SW_HIDE, ewWaitUntilTerminated, R);
   Exec('taskkill', '/F /IM winws.exe', '', SW_HIDE, ewWaitUntilTerminated, R);
+  Exec('schtasks', '/Delete /TN "Deliverance" /F', '', SW_HIDE, ewWaitUntilTerminated, R);
   Exec('schtasks', '/Delete /TN "ZapretGUI" /F', '', SW_HIDE, ewWaitUntilTerminated, R);
   Result := '';
 end;

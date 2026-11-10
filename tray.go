@@ -22,8 +22,8 @@ func (a *App) startTray() {
 
 func (a *App) onTrayReady() {
 	systray.SetIcon(trayIcon)
-	systray.SetTitle("Deliverance")
-	systray.SetTooltip("Deliverance")
+	systray.SetTitle("DZapret")
+	systray.SetTooltip("DZapret")
 	systray.SetOnTapped(a.showWindow)
 
 	mOpen := systray.AddMenuItem("Открыть", "")
@@ -70,10 +70,10 @@ func (a *App) updateTray() {
 	}
 	if isRunning() {
 		mToggle.SetTitle("Остановить")
-		systray.SetTooltip("Deliverance — работает")
+		systray.SetTooltip("DZapret — работает")
 	} else {
 		mToggle.SetTitle("Запустить")
-		systray.SetTooltip("Deliverance — остановлено")
+		systray.SetTooltip("DZapret — остановлено")
 	}
 }
 

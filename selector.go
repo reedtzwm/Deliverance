@@ -55,7 +55,7 @@ func probe(ctx context.Context, t target) bool {
 	defer tr.CloseIdleConnections()
 	client := &http.Client{Transport: tr, Timeout: 8 * time.Second}
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, t.URL, nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 Deliverance")
+	req.Header.Set("User-Agent", "Mozilla/5.0 DZapret")
 	resp, err := client.Do(req)
 	if err != nil {
 		return false

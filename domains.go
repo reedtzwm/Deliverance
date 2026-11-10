@@ -100,13 +100,15 @@ func normalizeDomains(text string) (good []string, bad []string) {
 }
 
 const (
-	blockStart = "# >>> Deliverance (управляется программой, не редактируйте между метками)"
-	blockEnd   = "# <<< Deliverance"
-
-	// метки прежней версии: при следующем применении блок будет заменён на новый
-	legacyBlockStart = "# >>> ZapretGUI (управляется программой, не редактируйте между метками)"
-	legacyBlockEnd   = "# <<< ZapretGUI"
+	blockStart = "# >>> DZapret (управляется программой, не редактируйте между метками)"
+	blockEnd   = "# <<< DZapret"
 )
+
+// метки прежних названий программы: при следующем применении такой блок заменяется на новый
+var legacyBlocks = [][2]string{
+	{"# >>> Deliverance (управляется программой, не редактируйте между метками)", "# <<< Deliverance"},
+	{"# >>> ZapretGUI (управляется программой, не редактируйте между метками)", "# <<< ZapretGUI"},
+}
 
 // applyDomains записывает домены в lists/list-general-user.txt внутри своего блока,
 // не трогая остальное содержимое файла.
@@ -120,7 +122,7 @@ func applyDomains(text string) error {
 		existing = string(b)
 	}
 	// вырезаем старый блок (и блок с метками прежней версии)
-	for _, m := range [][2]string{{blockStart, blockEnd}, {legacyBlockStart, legacyBlockEnd}} {
+	for _, m := range append([][2]string{{blockStart, blockEnd}}, legacyBlocks...) {
 		if i := strings.Index(existing, m[0]); i >= 0 {
 			if j := strings.Index(existing[i:], m[1]); j >= 0 {
 				existing = existing[:i] + existing[i+j+len(m[1]):]

@@ -6,16 +6,20 @@ import (
 )
 
 const (
-	taskName       = "Deliverance"
-	legacyTaskName = "ZapretGUI" // прежнее имя до переименования
+	taskName = "DZapret"
 )
+
+// имена задач автозапуска прежних версий (до переименований)
+var legacyTaskNames = []string{"Deliverance", "ZapretGUI"}
 
 // Автозапуск через планировщик с наивысшими правами: записи в HKCU\Run
 // для программ с запросом UAC Windows при входе пропускает.
 // migrateLegacy: после переименования убирает старую задачу автозапуска и,
 // если автозапуск был включён, создаёт новую уже с новым exe.
 func migrateLegacy() {
-	_ = hidden(exec.Command("schtasks", "/Delete", "/TN", legacyTaskName, "/F")).Run()
+	for _, n := range legacyTaskNames {
+		_ = hidden(exec.Command("schtasks", "/Delete", "/TN", n, "/F")).Run()
+	}
 	if loadConfig().AutoRun {
 		setAutostart(true)
 	}

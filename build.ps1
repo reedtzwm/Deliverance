@@ -19,15 +19,17 @@ function Sign-Authenticode($file) {
 # сначала сборка: wails собирает фронтенд в frontend\dist, который нужен go:embed для тестов
 & "$(go env GOPATH)\bin\wails.exe" build -clean
 if ($LASTEXITCODE) { throw 'wails build failed' }
+# wails build -clean стирает frontend\dist вместе с .gitkeep, а он нужен репозиторию для go:embed
+New-Item -ItemType File -Force frontend\dist\.gitkeep | Out-Null
 
 go test ./...
 if ($LASTEXITCODE) { throw 'tests failed' }
-Sign-Authenticode 'build\bin\deliverance.exe'
+Sign-Authenticode 'build\bin\dzapret.exe'
 
 $ver = (Select-String -Path selfupdate.go -Pattern 'appVersion = "([^"]+)"').Matches[0].Groups[1].Value
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /DAppVer=$ver installer\setup.iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
-$setup = "build\installer\Deliverance-Setup-$ver.exe"
+$setup = "build\installer\DZapret-Setup-$ver.exe"
 Sign-Authenticode $setup
 
 if (-not $SkipUpdateSig) {
@@ -36,4 +38,13 @@ if (-not $SkipUpdateSig) {
     go run ./tools/sigtool sign $key $setup
     if ($LASTEXITCODE) { throw 'update signing failed' }
     Write-Host "Publish both files in the GitHub release: $setup and $setup.sig"
+}
+
+# Compatibility: copies installed before the rename (Deliverance) look for Deliverance-Setup-<ver>.exe.
+# The file is the same installer under the old name; publish these two as well until old copies have updated.
+$legacy = "build\installer\Deliverance-Setup-$ver.exe"
+Copy-Item $setup $legacy -Force
+if (Test-Path "$setup.sig") {
+    Copy-Item "$setup.sig" "$legacy.sig" -Force
+    Write-Host "Also publish (for old installs): $legacy and $legacy.sig"
 }
