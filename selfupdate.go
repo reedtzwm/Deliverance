@@ -22,7 +22,7 @@ import (
 // (тег релиза — например 1.1.0 или v1.1.0).
 // Версию при сборке можно задать так: go build -ldflags "-X main.appVersion=1.1.0"
 
-var appVersion = "1.8.0"
+var appVersion = "1.8.1"
 
 const selfRepo = "reedtzwm/Deliverance"
 
@@ -91,10 +91,29 @@ func (a *App) ApplySelfUpdate() string {
 		_ = os.Remove(dst)
 		return "Обновление отклонено: " + err.Error()
 	}
-	if err := exec.Command(dst, "/VERYSILENT", "/SUPPRESSMSGBOXES", "/CLOSEAPPLICATIONS", "/RESTARTAPPLICATIONS").Start(); err != nil {
-		return err.Error()
+	// Только что скачанный exe может быть на несколько секунд занят антивирусом (проверка нового файла):
+	// Windows тогда отвечает «файл используется другим процессом». Пробуем запустить несколько раз.
+	args := []string{"/VERYSILENT", "/SUPPRESSMSGBOXES", "/CLOSEAPPLICATIONS"}
+	err = retryStart(func() error { return exec.Command(dst, args...).Start() }, 30, time.Second)
+	if err != nil {
+		// файл не удаляем: его можно запустить вручную
+		return "Не удалось запустить установщик: " + err.Error() + ". Файл сохранён: " + dst + " — запустите его вручную."
 	}
 	return "Подпись проверена, установка обновления запущена"
+}
+
+// retryStart вызывает start, пока он не вернёт nil (но не более attempts раз, с паузой delay).
+func retryStart(start func() error, attempts int, delay time.Duration) error {
+	var err error
+	for i := 0; i < attempts; i++ {
+		if err = start(); err == nil {
+			return nil
+		}
+		if i < attempts-1 {
+			time.Sleep(delay)
+		}
+	}
+	return err
 }
 
 func download(url, dst string, limit int64) error {
